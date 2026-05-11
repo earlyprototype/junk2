@@ -1,0 +1,19 @@
+# Local-only Claude Code config (per-machine, not for commit)
+.claude/settings.local.json
+
+# Kanbanger runtime state
+.kanban.lock
+.kanban.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Env files
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
