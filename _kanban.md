@@ -1,20 +1,29 @@
-# junk2 — Kanbanger v2.1.0 Smoke Test Board
+# Pomodoro CLI — focus-timer utility
 
 ## BACKLOG
 
-*   [ ] Add a feature flag for dark mode
-*   [ ] Wire up email notifications
+*   [ ] Cross-platform packaging (Windows/Mac/Linux)
+*   [ ] Stats / history command
+*   [ ] Pomodoro length config (default 25min)
+*   [ ] Auto-resume after break
 
 ## TODO
 
-*   [ ] Draft onboarding copy
-*   [ ] Pick a logo color
+*   [ ] Sound notifications
 
 ## DOING
 
-*   [ ] Sketch initial wireframes
+*   [ ] Hook desktop notification on session end
+
+## REVIEW
+
+*   [ ] Set up pytest + CI
 
 ## DONE
 
-*   [x] Create junk2 repo
-*   [x] Wire up Kanbanger MCP server
+*   [x] Initial project scaffold
+*   [x] README skeleton
+*   [x] Pick CLI framework (Click vs Typer)
+*   [x] Design timer state machine
+*   [x] Implement start/stop/pause commands
+*   [x] Rework: Design timer state machine

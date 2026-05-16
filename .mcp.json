@@ -1,10 +1,12 @@
 {
   "mcpServers": {
     "kanbanger": {
-      "command": "C:/Users/Fab2/AppData/Local/Programs/Python/Python312/python.exe",
-      "args": ["-m", "kanbanger_mcp"],
+      "command": "C:/Users/Fab2/Desktop/AI/_tools/junk2/.venv/Scripts/python.exe",
+      "args": [
+        "-m",
+        "kanbanger_mcp"
+      ],
       "env": {
-        "PYTHONPATH": "C:/Users/Fab2/Desktop/AI/_tools/_kanbanger",
         "KANBANGER_WORKSPACE": "${KANBANGER_WORKSPACE:-C:/Users/Fab2/Desktop/AI/_tools/junk2}",
         "GITHUB_TOKEN": "${GITHUB_TOKEN:-}",
         "GITHUB_REPO": "${GITHUB_REPO:-}",

@@ -17,3 +17,6 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# Per-project venv created by kanbanger-partymix/scripts/setup-venv.py
+.venv/

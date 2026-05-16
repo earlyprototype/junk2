@@ -132,24 +132,35 @@ the documented limitation, not a regression.
 
 Add a section below for each run.
 
-### Run 1 — <date> — <pass/fail/partial>
+### Run 1 — 2026-05-11 — partial (5 clean PASS, 1 PASS-with-quirks, 1 inconsistency)
 
 | Step | Result | Notes |
 |---|---|---|
-| 1. list_tasks (all) | | |
-| 2. list_tasks (TODO) | | |
-| 3. add_task | | |
-| 4. move_task ×2 | | |
-| 5. delete_task | | |
-| 6. get_sync_status | | |
-| 7. resources ×3 | | |
-| 8. REVIEW probes | | |
+| 1. list_tasks (all) | PASS | 7 tasks across 4 columns, matches seed. |
+| 2. list_tasks (TODO) | PASS | 2 tasks as expected. |
+| 3. add_task | PASS (with quirks) | Task added with description, but PREPENDED to top of TODO (runbook expected 3rd/bottom). Inserted line has no blank line between `## TODO` header and the new task — column-header→first-task spacing differs from other columns until the inserted task is moved out. |
+| 4. move_task ×2 | PASS | TODO→DOING→DONE both worked. `[x]` auto-marked at DONE. Description preserved. Same prepend+missing-blank-line quirk repeats in DOING and DONE on insert. |
+| 5. delete_task | PASS | Task gone, `_kanban.md` byte-for-byte back to seed shape (spacing restored). |
+| 6. get_sync_status | PASS | Returned immediately. JSON: `synced_tasks=0`, `state_file="not found"`, message about running `sync_to_github` first. No hang. |
+| 7. resources ×3 | PASS | `kanban://current-board` returned seed markdown, `kanban://stats` returned correct counts (2+2+1+2=7, completed=2, in_progress=1, pending=4), `kanban://sync-status` returned `synced=false`. |
+| 8. REVIEW probes | PARTIAL | `add_task(column="REVIEW")` → clean error `"Invalid column 'REVIEW'. Must be one of: BACKLOG, TODO, DOING, DONE"` (expected, PASS). `list_tasks(column="REVIEW")` → **no error**, returns `{"REVIEW": []}` (UNEXPECTED — runbook predicted filter-validation error). Column whitelist is enforced inconsistently between the two tools. |
 
-**Overall verdict:**
+**Overall verdict:** Smoke test mostly passes — core CRUD (add, list, move, delete) works end-to-end against `_kanban.md`, board roundtrips cleanly to seed, resources serve, `get_sync_status` does not hang. Three findings worth fixing in v2.1.x or carrying to v3.0 — two from the tool layer, one from the install/wiring story below.
 
 **Unexpected behaviour:**
 
+1. **Insertion is prepend, not append.** `add_task` puts the new entry at the TOP of the target column, immediately after the `## <COLUMN>` header, with no blank line between header and the inserted task. All other columns retain a blank line between header and the first task. The runbook author expected append-to-bottom (e.g. "see the new task as the 3rd entry"). The shape recovers on `delete_task` / `move_task` out, so the artefact is purely cosmetic and transient — but it would surprise a user reading `_kanban.md` directly during AI activity.
+2. **`list_tasks` does not validate `column` against the v2.1.0 whitelist.** It accepts `column="REVIEW"` (or, presumably, any string) and returns `{"<that-string>": []}`. `add_task` validates correctly. This is an enforcement asymmetry — a user filtering by a typo or by a column that "should" exist gets a silent empty result instead of a clear error.
+3. **`.mcp.json` does NOT pin `PYTHONPATH`, contrary to the "Doctor output" claim above.** The Doctor section states `.mcp.json` pins `PYTHONPATH=C:/Users/Fab2/Desktop/AI/_tools/_kanbanger` to force v2.1.0. The actual `.mcp.json` in this repo has no `PYTHONPATH` entry — only `KANBANGER_WORKSPACE`, `GITHUB_TOKEN`, `GITHUB_REPO`, `GITHUB_PROJECT_NUMBER`, `MCP_USE_ANONYMIZED_TELEMETRY`. Result: at the start of the test session, `python -m kanbanger_mcp` resolved to `kanbanger-partymix\kanbanger_mcp\__init__.py` (the v3.0 successor's editable install), NOT to `_kanbanger\`. The test session had to manually `pip uninstall kanbanger-partymix` and `pip install "kanban-project-sync[mcp] @ git+https://github.com/earlyprototype/kanbanger.git"` before the runbook could exercise the genuine v2.1.0 code.
+
 **Items to feed back to kanbanger-platform Phase 1:**
+
+- Decide canonical insertion position (top vs bottom of column) and document it. Either way, fix the missing blank line after the column header on insert — it breaks visual consistency with the rest of the file.
+- Make column-whitelist validation symmetric across all MCP tools that accept a `column` arg. Either both `add_task` and `list_tasks` reject unknown columns, or both tolerate them. Asymmetric validation is worse than either consistent choice. (Recommendation: reject, to make typos visible.)
+- Reconcile `.mcp.json` ↔ "Doctor output" wording. Options: (a) actually add the `PYTHONPATH` pin so the wiring matches the doc; (b) remove the claim from "Doctor output" and instead make v2.1.0 install explicit (per-project venv, or pip-install-from-GitHub in a setup step). Whichever — having a partymix editable install silently shadow v2.1.0 was a real test-validity hazard.
+- Optional: a 5th column (`REVIEW`) keeps surfacing in tests and docs. Worth a v3.0 design decision on whether columns are configurable or stay hardcoded.
+
+**Setup note for the next runner:** To restore partymix dev later: `pip install -e "C:/Users/Fab2/Desktop/AI/_tools/kanbanger-partymix[mcp]"` (this will re-shadow the v2.1.0 install — only do this AFTER any further v2.1.0 smoke runs).
 
 ---
 
