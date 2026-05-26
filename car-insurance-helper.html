@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Irish Car Insurance — Quote Helper</title>
+<style>
+  :root {
+    --bg:#0f1419; --panel:#1a2230; --panel2:#222d3d; --ink:#e7edf5;
+    --muted:#93a1b5; --line:#2d3a4d; --accent:#3ea0ff; --good:#36c08a;
+    --warn:#e0b341; --bad:#e06b6b; --best:#173a2c;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:var(--bg); color:var(--ink);
+  }
+  header {
+    padding:22px 20px; border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#15324f,#0f1419);
+  }
+  h1 { margin:0 0 4px; font-size:21px; }
+  header p { margin:0; color:var(--muted); font-size:13px; }
+  main { max-width:980px; margin:0 auto; padding:20px; }
+  section { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 18px; }
+  h2 { font-size:16px; margin:0 0 4px; }
+  .hint { color:var(--muted); font-size:13px; margin:0 0 14px; }
+  label { display:block; font-size:12px; color:var(--muted); margin:0 0 4px; text-transform:uppercase; letter-spacing:.03em; }
+  input, select, textarea {
+    width:100%; padding:9px 10px; background:var(--panel2); border:1px solid var(--line);
+    border-radius:8px; color:var(--ink); font:inherit;
+  }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--accent); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
+  .field { margin:0 0 4px; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  button {
+    background:var(--accent); color:#04121f; border:0; border-radius:8px;
+    padding:9px 15px; font:inherit; font-weight:600; cursor:pointer;
+  }
+  button.ghost { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  button.danger { background:transparent; color:var(--bad); border:1px solid var(--bad); padding:5px 9px; font-weight:500; }
+  button:active { transform:translateY(1px); }
+  .bm {
+    display:inline-block; background:var(--good); color:#04121f; font-weight:700;
+    padding:10px 16px; border-radius:8px; text-decoration:none; cursor:grab;
+  }
+  table { width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; }
+  th, td { text-align:left; padding:9px 8px; border-bottom:1px solid var(--line); }
+  th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.03em; }
+  tr.best td { background:var(--best); }
+  .tag { display:inline-block; font-size:11px; padding:2px 7px; border-radius:99px; font-weight:600; }
+  .tag.best { background:var(--good); color:#04121f; }
+  .tag.mo { background:#3a2f17; color:var(--warn); }
+  .num { text-align:right; font-variant-numeric:tabular-nums; }
+  ul.links { list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:8px; }
+  ul.links a { color:var(--accent); text-decoration:none; }
+  ul.links li { background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:8px 11px; }
+  ul.links small { color:var(--muted); display:block; }
+  .check { list-style:none; padding:0; margin:0; }
+  .check li { padding:5px 0; }
+  .check input { width:auto; margin-right:8px; vertical-align:-1px; }
+  .saved { color:var(--good); font-size:12px; }
+  details summary { cursor:pointer; color:var(--accent); font-size:13px; }
+  code { background:var(--panel2); padding:1px 5px; border-radius:4px; font-size:12px; }
+  .empty { color:var(--muted); font-style:italic; }
+  .pill { font-size:11px; color:var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Irish Car Insurance — Quote Helper</h1>
+  <p>Enter your details once · autofill them into quote sites · compare what comes back by true annual cost. Everything stays in this browser — nothing is uploaded.</p>
+</header>
+
+<main>
+  <!-- ============ PROFILE ============ -->
+  <section>
+    <h2>1 · Your quote profile</h2>
+    <p class="hint">Fill this in once. It powers the autofill button and saves locally. <span id="profileSaved" class="saved"></span></p>
+    <div class="grid">
+      <div class="field"><label>First name</label><input data-k="firstName" placeholder="Jane"></div>
+      <div class="field"><label>Surname</label><input data-k="lastName" placeholder="Doe"></div>
+      <div class="field"><label>Date of birth</label><input data-k="dob" type="date"></div>
+      <div class="field"><label>Email</label><input data-k="email" type="email" placeholder="you@example.com"></div>
+      <div class="field"><label>Phone</label><input data-k="phone" placeholder="08x xxx xxxx"></div>
+      <div class="field"><label>Address line 1</label><input data-k="addr1" placeholder="1 Main Street"></div>
+      <div class="field"><label>Town / City</label><input data-k="town" placeholder="Dublin"></div>
+      <div class="field"><label>County</label><input data-k="county" placeholder="Co. Dublin"></div>
+      <div class="field"><label>Eircode</label><input data-k="eircode" placeholder="D02 XXXX"></div>
+      <div class="field"><label>Licence number (NI/UK)</label><input data-k="licence" placeholder="as on card"></div>
+      <div class="field"><label>Licence first issued</label><input data-k="licenceDate" type="date"></div>
+      <div class="field"><label>Vehicle reg</label><input data-k="reg" placeholder="12-D-2701"></div>
+      <div class="field"><label>Make</label><input data-k="make" placeholder="Opel"></div>
+      <div class="field"><label>Model</label><input data-k="model" placeholder="Insignia"></div>
+      <div class="field"><label>Engine (L)</label><input data-k="engine" placeholder="2.0"></div>
+      <div class="field"><label>Fuel</label><select data-k="fuel"><option value="">—</option><option>Diesel</option><option>Petrol</option><option>Hybrid</option><option>Electric</option></select></div>
+      <div class="field"><label>Year</label><input data-k="year" placeholder="2012"></div>
+      <div class="field"><label>Annual mileage (km)</label><input data-k="mileage" placeholder="15000"></div>
+      <div class="field"><label>No-claims bonus (years)</label><input data-k="ncb" placeholder="3"></div>
+      <div class="field"><label>NCB type</label><select data-k="ncbType"><option>Policyholder (own name)</option><option>Named driver</option><option>Mixed</option></select></div>
+      <div class="field"><label>Penalty points</label><input data-k="points" placeholder="0"></div>
+      <div class="field"><label>Claims (last 5 yrs)</label><input data-k="claims" placeholder="0"></div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button onclick="saveProfile()">Save profile</button>
+      <button class="ghost" onclick="clearProfile()">Clear</button>
+      <span class="pill">Tip: NCB type matters — policyholder years get the full discount; named-driver years often don't.</span>
+    </div>
+  </section>
+
+  <!-- ============ AUTOFILL ============ -->
+  <section>
+    <h2>2 · Autofill button</h2>
+    <p class="hint">Drag this button to your bookmarks bar. Then, on any quote form <em>you've</em> opened, click it to paste your saved details into matching fields. You still solve any CAPTCHA and submit yourself — it's a typing aid, not a bot.</p>
+    <p><a id="bookmarklet" class="bm" href="#">⤓ Insurance Autofill</a></p>
+    <details>
+      <summary>How it works &amp; limits</summary>
+      <p class="hint" style="margin-top:10px">
+        The button carries your saved profile inline and best-effort matches each field by its label, name, placeholder or aria-label (e.g. a field mentioning "eircode" gets your Eircode). It won't beat every site — forms vary, and some load fields in steps — so always eyeball what it filled before submitting. Re-drag the button after editing your profile to refresh the data it carries. It only fills fields; it never clicks submit, and it sends nothing anywhere.
+      </p>
+    </details>
+  </section>
+
+  <!-- ============ SHORTLIST ============ -->
+  <section>
+    <h2>3 · Where to quote (your shortlist)</h2>
+    <p class="hint">Work through these methodically — quote at least 5. For an NI/UK licence, brokers (Chill, KennCo) often place you better than going direct.</p>
+    <ul class="links">
+      <li><a href="https://www.bonkers.ie/compare-car-insurance/" target="_blank" rel="noopener">bonkers.ie</a><small>Comparison · baseline</small></li>
+      <li><a href="https://switcher.ie/car-insurance/" target="_blank" rel="noopener">switcher.ie</a><small>Comparison · baseline</small></li>
+      <li><a href="https://www.chill.ie/car-insurance" target="_blank" rel="noopener">Chill Insurance</a><small>Broker · good for NI licence</small></li>
+      <li><a href="https://www.kennco.ie/car-insurance/" target="_blank" rel="noopener">KennCo</a><small>Broker</small></li>
+      <li><a href="https://www.fbd.ie/car-insurance/" target="_blank" rel="noopener">FBD</a><small>Direct · not on comparison sites</small></li>
+      <li><a href="https://www.axa.ie/car-insurance/" target="_blank" rel="noopener">AXA</a><small>Direct · often cheap 35–50 clean</small></li>
+      <li><a href="https://www.aviva.ie/insurance/car-insurance/" target="_blank" rel="noopener">Aviva</a><small>Direct</small></li>
+      <li><a href="https://www.zurich.ie/car-insurance/" target="_blank" rel="noopener">Zurich</a><small>Direct</small></li>
+      <li><a href="https://www.123.ie/car-insurance" target="_blank" rel="noopener">123.ie</a><small>Direct/broker</small></li>
+      <li><a href="https://www.libertyinsurance.ie/car-insurance" target="_blank" rel="noopener">Liberty</a><small>Direct</small></li>
+    </ul>
+  </section>
+
+  <!-- ============ TRACKER ============ -->
+  <section>
+    <h2>4 · Compare quotes</h2>
+    <p class="hint">Log each quote as it comes back. The table ranks by <strong>true annual cost</strong> (monthly quotes get a configurable surcharge added) and flags the best value.</p>
+    <div class="grid">
+      <div class="field"><label>Insurer / broker</label><input id="q_insurer" placeholder="AXA"></div>
+      <div class="field"><label>Premium (€)</label><input id="q_premium" type="number" placeholder="650"></div>
+      <div class="field"><label>Billing</label><select id="q_billing"><option value="annual">Annual</option><option value="monthly">Monthly (per month)</option></select></div>
+      <div class="field"><label>Excess (€)</label><input id="q_excess" type="number" placeholder="300"></div>
+      <div class="field"><label>Cover</label><select id="q_cover"><option>Comprehensive</option><option>Third Party F&amp;T</option><option>Third Party</option></select></div>
+      <div class="field"><label>NCB recognised?</label><select id="q_ncb"><option>Yes — full</option><option>Partial</option><option>No</option><option>Unknown</option></select></div>
+      <div class="field"><label>Notes</label><input id="q_notes" placeholder="black box / named driver added"></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button onclick="addQuote()">Add quote</button>
+      <label style="display:inline-flex;align-items:center;gap:6px;text-transform:none;color:var(--muted);margin:0">
+        Monthly surcharge
+        <input id="surcharge" type="number" value="10" style="width:70px"> %
+      </label>
+    </div>
+    <table id="quoteTable">
+      <thead><tr>
+        <th>#</th><th>Insurer</th><th>Cover</th><th>NCB</th>
+        <th class="num">Quoted</th><th class="num">True / yr</th><th class="num">Excess</th><th>Notes</th><th></th>
+      </tr></thead>
+      <tbody><tr><td colspan="9" class="empty">No quotes logged yet.</td></tr></tbody>
+    </table>
+    <p id="summary" class="hint" style="margin-top:12px"></p>
+  </section>
+
+  <!-- ============ CHECKLIST ============ -->
+  <section>
+    <h2>5 · Prep checklist</h2>
+    <p class="hint">Have these ready before you start — consistent, accurate answers avoid loadings.</p>
+    <ul class="check" id="checklist"></ul>
+  </section>
+</main>
+
+<script>
+const FIELDS = ['firstName','lastName','dob','email','phone','addr1','town','county','eircode','licence','licenceDate','reg','make','model','engine','fuel','year','mileage','ncb','ncbType','points','claims'];
+const PROFILE_KEY = 'iciq_profile_v1';
+const QUOTES_KEY  = 'iciq_quotes_v1';
+const CHECK_KEY   = 'iciq_check_v1';
+
+// ---------- profile ----------
+function loadProfile() {
+  const p = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+  FIELDS.forEach(k => { const el = document.querySelector(`[data-k="${k}"]`); if (el && p[k] != null) el.value = p[k]; });
+  return p;
+}
+function readProfile() {
+  const p = {};
+  FIELDS.forEach(k => { const el = document.querySelector(`[data-k="${k}"]`); if (el) p[k] = el.value; });
+  return p;
+}
+function saveProfile() {
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(readProfile()));
+  const s = document.getElementById('profileSaved');
+  s.textContent = '✓ saved';
+  setTimeout(() => s.textContent = '', 2000);
+  buildBookmarklet();
+}
+function clearProfile() {
+  if (!confirm('Clear your saved profile?')) return;
+  localStorage.removeItem(PROFILE_KEY);
+  FIELDS.forEach(k => { const el = document.querySelector(`[data-k="${k}"]`); if (el) el.value = ''; });
+  buildBookmarklet();
+}
+
+// ---------- bookmarklet ----------
+// Maps each profile key to keywords we look for in a field's label/name/placeholder.
+function buildBookmarklet() {
+  const p = readProfile();
+  const map = {
+    firstName:['first name','forename','firstname','given'],
+    lastName:['surname','last name','lastname','family name'],
+    dob:['date of birth','dob','birth'],
+    email:['email','e-mail'],
+    phone:['phone','mobile','telephone','contact number'],
+    addr1:['address','address line 1','street'],
+    town:['town','city'],
+    county:['county'],
+    eircode:['eircode','postcode','post code','zip'],
+    licence:['licence number','license number','licence no','driving licence'],
+    licenceDate:['licence date','first issued','date licence','licence held','date passed'],
+    reg:['registration','reg number','reg no','vehicle reg','number plate','vrn'],
+    make:['make'],
+    model:['model'],
+    engine:['engine size','engine','cc','litre'],
+    fuel:['fuel'],
+    year:['year of manufacture','year','manufacture'],
+    mileage:['mileage','annual mileage','km per year','kilometres','distance'],
+    ncb:['no claims','no-claims','ncb','ncd','bonus years','claims free'],
+    ncbType:['ncb type','bonus type'],
+    points:['penalty points','points'],
+    claims:['claims','accidents','incidents']
+  };
+  const data = {}; FIELDS.forEach(k => { if (p[k]) data[k] = String(p[k]); });
+
+  const fn = function(DATA, MAP) {
+    const norm = s => (s||'').toLowerCase().replace(/\s+/g,' ').trim();
+    function labelFor(el){
+      let t = '';
+      if (el.id){ const l = document.querySelector('label[for="'+CSS.escape(el.id)+'"]'); if(l) t += ' '+l.textContent; }
+      const wrap = el.closest('label'); if (wrap) t += ' '+wrap.textContent;
+      t += ' '+(el.name||'')+' '+(el.id||'')+' '+(el.placeholder||'')+' '+(el.getAttribute('aria-label')||'');
+      return norm(t);
+    }
+    const els = document.querySelectorAll('input,select,textarea');
+    let filled = 0;
+    els.forEach(el => {
+      if (el.type==='hidden'||el.type==='submit'||el.type==='button'||el.disabled||el.value) return;
+      const hay = labelFor(el);
+      for (const key in DATA){
+        const kws = MAP[key]||[];
+        if (kws.some(kw => hay.indexOf(kw) !== -1)){
+          try {
+            if (el.tagName==='SELECT'){
+              const want = norm(DATA[key]);
+              for (const o of el.options){ if (norm(o.text).indexOf(want)!==-1 || norm(o.value).indexOf(want)!==-1){ el.value=o.value; break; } }
+            } else { el.value = DATA[key]; }
+            el.dispatchEvent(new Event('input',{bubbles:true}));
+            el.dispatchEvent(new Event('change',{bubbles:true}));
+            filled++;
+          } catch(e){}
+          break;
+        }
+      }
+    });
+    alert('Autofill: filled '+filled+' field(s). Check them before submitting.');
+  };
+  const code = '(' + fn.toString() + ')(' + JSON.stringify(data) + ',' + JSON.stringify(map) + ');';
+  document.getElementById('bookmarklet').href = 'javascript:' + encodeURIComponent(code);
+}
+
+// ---------- quotes ----------
+function loadQuotes(){ return JSON.parse(localStorage.getItem(QUOTES_KEY) || '[]'); }
+function saveQuotes(q){ localStorage.setItem(QUOTES_KEY, JSON.stringify(q)); }
+function trueAnnual(q, surcharge){
+  const prem = parseFloat(q.premium)||0;
+  if (q.billing === 'monthly') return prem * 12 * (1 + surcharge/100);
+  return prem;
+}
+function addQuote(){
+  const q = {
+    insurer: document.getElementById('q_insurer').value.trim() || '—',
+    premium: document.getElementById('q_premium').value,
+    billing: document.getElementById('q_billing').value,
+    excess:  document.getElementById('q_excess').value,
+    cover:   document.getElementById('q_cover').value,
+    ncb:     document.getElementById('q_ncb').value,
+    notes:   document.getElementById('q_notes').value.trim()
+  };
+  if (!q.premium){ alert('Enter a premium amount.'); return; }
+  const all = loadQuotes(); all.push(q); saveQuotes(all);
+  ['q_insurer','q_premium','q_excess','q_notes'].forEach(id => document.getElementById(id).value='');
+  renderQuotes();
+}
+function delQuote(i){ const all = loadQuotes(); all.splice(i,1); saveQuotes(all); renderQuotes(); }
+function renderQuotes(){
+  const surcharge = parseFloat(document.getElementById('surcharge').value)||0;
+  const all = loadQuotes();
+  const tbody = document.querySelector('#quoteTable tbody');
+  const summary = document.getElementById('summary');
+  if (!all.length){
+    tbody.innerHTML = '<tr><td colspan="9" class="empty">No quotes logged yet.</td></tr>';
+    summary.textContent = ''; return;
+  }
+  const withCost = all.map((q,i) => ({...q, i, cost: trueAnnual(q, surcharge)}));
+  const min = Math.min(...withCost.map(q => q.cost));
+  const ordered = [...withCost].sort((a,b) => a.cost - b.cost);
+  const fmt = n => '€' + n.toLocaleString('en-IE',{maximumFractionDigits:0});
+  tbody.innerHTML = ordered.map(q => {
+    const best = q.cost === min;
+    const monthly = q.billing === 'monthly';
+    return `<tr class="${best?'best':''}">
+      <td>${best?'<span class="tag best">BEST</span>':(ordered.indexOf(q)+1)}</td>
+      <td>${esc(q.insurer)}</td>
+      <td>${esc(q.cover)}</td>
+      <td>${esc(q.ncb)}</td>
+      <td class="num">${fmt(parseFloat(q.premium)||0)}${monthly?' <span class="tag mo">/mo</span>':''}</td>
+      <td class="num"><strong>${fmt(q.cost)}</strong></td>
+      <td class="num">${q.excess?fmt(parseFloat(q.excess)):'—'}</td>
+      <td>${esc(q.notes)}</td>
+      <td><button class="danger" onclick="delQuote(${q.i})">✕</button></td>
+    </tr>`;
+  }).join('');
+  const max = Math.max(...withCost.map(q => q.cost));
+  const save = max - min;
+  summary.innerHTML = save > 0
+    ? `Cheapest <strong>${fmt(min)}</strong> vs dearest <strong>${fmt(max)}</strong> — spread of <strong>${fmt(save)}/yr</strong>. ${all.length} quote(s) logged.`
+    : `${all.length} quote(s) logged.`;
+}
+function esc(s){ return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+// ---------- checklist ----------
+const CHECK_ITEMS = [
+  'NCB confirmation letter from current insurer (your 1 year here)',
+  'Proof of earlier NCB years (policyholder letters)',
+  'NI/UK licence number + date first issued',
+  'Exact vehicle details from logbook/VLC (trim, engine, bhp)',
+  'Realistic annual mileage (don\'t round up)',
+  'Penalty points / claims history, last 5 years (be exact)',
+  'Decide voluntary excess you can absorb (€300–€500)',
+  'Quote BOTH comprehensive and third-party',
+  'Choose pay-annually to dodge the ~10% monthly surcharge'
+];
+function loadChecks(){ return JSON.parse(localStorage.getItem(CHECK_KEY) || '{}'); }
+function renderChecklist(){
+  const state = loadChecks();
+  const ul = document.getElementById('checklist');
+  ul.innerHTML = CHECK_ITEMS.map((t,i) =>
+    `<li><label style="text-transform:none;color:var(--ink);font-size:15px;display:flex;gap:4px;align-items:flex-start">
+      <input type="checkbox" ${state[i]?'checked':''} onchange="toggleCheck(${i},this.checked)"> <span>${esc(t)}</span></label></li>`
+  ).join('');
+}
+function toggleCheck(i,v){ const s = loadChecks(); s[i]=v; localStorage.setItem(CHECK_KEY, JSON.stringify(s)); }
+
+// ---------- init ----------
+loadProfile();
+buildBookmarklet();
+renderQuotes();
+renderChecklist();
+document.getElementById('surcharge').addEventListener('input', renderQuotes);
+</script>
+</body>
+</html>
