@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit configuration — drop in repo root as .coderabbit.yaml
+language: en-US
+
+# House style for every review comment. Tune to taste.
+tone_instructions: >-
+  Be concise and direct. Prioritise correctness, security, and maintainability
+  over style nitpicks. Don't comment on formatting that a linter/formatter handles.
+
+reviews:
+  # "chill" = high-signal, fewer nits. Bump individual repos to "assertive"
+  # where you want deep scrutiny.
+  profile: chill
+
+  # Leave false unless you want CodeRabbit to formally block merges.
+  request_changes_workflow: false
+
+  high_level_summary: true   # the PR summary at the top — keep on
+  review_status: true        # posts a status check
+  collapse_walkthrough: true # tuck the file-by-file walkthrough behind a toggle
+  poem: false                # disable the novelty poem
+
+  auto_review:
+    enabled: true
+    drafts: false            # don't review drafts — saves noise + quota
+    base_branches:
+      - main
+      - develop
+
+  # Biggest noise reducer: skip generated / vendored / lock files.
+  path_filters:
+    - "!**/*.lock"
+    - "!**/package-lock.json"
+    - "!**/pnpm-lock.yaml"
+    - "!**/yarn.lock"
+    - "!**/poetry.lock"
+    - "!**/dist/**"
+    - "!**/build/**"
+    - "!**/*.min.js"
+    - "!**/vendor/**"
+    - "!**/migrations/**"
+    - "!**/__snapshots__/**"
+
+  # Per-path review guidance. Adjust globs to your stack.
+  path_instructions:
+    - path: "src/**"
+      instructions: >-
+        Flag unvalidated user input, missing error handling at API/IO
+        boundaries, and any secrets or tokens committed in code.
+    - path: "**/*.{test,spec}.*"
+      instructions: >-
+        Check that tests actually assert behaviour. Ignore style.
+
+chat:
+  auto_reply: true
+
+# CodeRabbit remembers feedback. You can also seed learnings here.
+knowledge_base:
+  learnings:
+    scope: auto
